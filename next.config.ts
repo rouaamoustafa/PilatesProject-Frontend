@@ -1,7 +1,32 @@
-import type { NextConfig } from "next";
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+  async rewrites() {
+    return [
+      // 1) Proxy all /api/* calls
+      {
+        source: '/api/:path*',
+        destination: 'http://127.0.0.1:3000/:path*',
+      },
+      // 2) Proxy /uploads/* so your <img src="/uploads/…"> works
+      {
+        source: '/uploads/:path*',
+        destination: 'http://127.0.0.1:3000/uploads/:path*',
+      },
+    ]
+  },
 
-export default nextConfig;
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '3000',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
+}
+
+module.exports = nextConfig
