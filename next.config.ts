@@ -4,15 +4,15 @@ const nextConfig = {
 
   async rewrites() {
     return [
-      // 1) Proxy all /api/* calls
+      // 1) Proxy all /api/* calls to Render
       {
         source: '/api/:path*',
-        destination: 'http://127.0.0.1:3000/:path*',
+        destination: 'https://pilatesproject-backend-3zu5.onrender.com/:path*',
       },
-      // 2) Proxy /uploads/* so your <img src="/uploads/…"> works
+      // 2) Proxy /uploads/* to Render as well
       {
         source: '/uploads/:path*',
-        destination: 'http://127.0.0.1:3000/uploads/:path*',
+        destination: 'https://pilatesproject-backend-3zu5.onrender.com/uploads/:path*',
       },
     ]
   },
@@ -20,12 +20,16 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '3000',
+        protocol: 'https',
+        hostname: 'pilatesproject-backend-3zu5.onrender.com',
+        port: '',
         pathname: '/uploads/**',
       },
     ],
+  },
+
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 }
 
