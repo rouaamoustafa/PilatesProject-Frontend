@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import api from '@/store/api/axios';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { fetchUsers } from '@/store/slices/usersSlice';
+// import { fetchUsers } from '@/store/slices/usersSlice';
 import { toast, ToastContainer } from 'react-toastify';
 
 function validate(v: {
@@ -51,7 +51,7 @@ export default function AddUserModal({
   onOpenChange: (v: boolean) => void;
 }) {
   const dispatch = useAppDispatch();
-  const { page, pageSize } = useAppSelector(s => s.users);
+  // const { page, pageSize } = useAppSelector(s => s.users);
   const [saving, setSaving] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
 
@@ -128,7 +128,7 @@ export default function AddUserModal({
       }
 
       toast.success('User created');
-      dispatch(fetchUsers({ page, pageSize, filter: '' }));
+      // dispatch(fetchUsers({ page, pageSize, filter: '' }));
       onOpenChange(false);
       reset();
     } catch (err: unknown) {
