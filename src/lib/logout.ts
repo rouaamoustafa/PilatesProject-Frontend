@@ -1,13 +1,18 @@
-// src/lib/logout.ts
-import { store } from '@/store'
+import { store, useAppDispatch } from '@/store'
+import api from '@/store/api/axios'
 import { clearUser } from '@/store/slices/authSlice'
+import { useRouter } from 'next/navigation';
 
 export const logout = async () => {
-  await fetch('http://localhost:3000/auth/logout', {
-    method: 'POST',
-    credentials: 'include',
-  })
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
-  store.dispatch(clearUser())          // <-- reset Redux
-  window.location.replace('/') 
-}
+  return () => {
+    localStorage.removeItem('auth_token')
+    dispatch(clearUser())
+    router.push('/')
+  }
+  };
+
+  
+

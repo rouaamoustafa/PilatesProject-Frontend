@@ -1,21 +1,26 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
-import { fetchCurrentUser } from '@/store/slices/authSlice'
+import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store'
+import { fetchCurrentUser } from '@/store/slices/authSlice'
 
-export function useAuth() {   // ← named export
+export function useAuth() {
   const dispatch = useAppDispatch()
-  const user   = useAppSelector(s => s.auth.user)
-  const status = useAppSelector(s => s.auth.status)
-  const fetchedRef = useRef(false)
+  const { user, status, error } = useAppSelector((s) => s.auth)
 
   useEffect(() => {
-    if (!fetchedRef.current && status === 'idle') {
-      fetchedRef.current = true
+    if (status === 'idle') {
+      console.log('[useAuth] fetching current user…')
       dispatch(fetchCurrentUser())
     }
   }, [status, dispatch])
 
-  return { user, loading: status === 'loading' }
+  const loading = status === 'idle' || status === 'loading'
+
+  // debug logs
+  useEffect(() => {
+    console.log('[useAuth] status →', status, ' user →', user)
+  }, [status, user, error])
+
+  return { user, loading, error: status === 'failed' }
 }

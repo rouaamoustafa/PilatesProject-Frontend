@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 'use client'
 
 
@@ -8,16 +7,16 @@ import  Providers  from '@/store/Providers'
 import LayoutClient from '@/components/LayoutClient'
 import { ToastContainer } from 'react-toastify'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-  display: 'swap',
-})
+// const geistSans = Geist({
+//   variable: '--font-geist-sans',
+//   subsets: ['latin'],
+//   display: 'swap',
+// })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
+// const geistMono = Geist_Mono({
+//   variable: '--font-geist-mono',
+//   subsets: ['latin'],
+// })
 
 
 
@@ -28,9 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden w-full max-w-[100vw]`}
-      >
+      <body>
         <Providers>
           <LayoutClient>{children}</LayoutClient>
         </Providers>

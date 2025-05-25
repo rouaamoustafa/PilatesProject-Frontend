@@ -1,15 +1,14 @@
-// src/components/InstructorModal.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +21,9 @@ import type {
   Instructor,
   Role,
 } from '@/types'
+import Cropper from 'react-easy-crop'
+import getCroppedImg from '@/components/cropImage'
+import { imageUrl } from '@/lib/storage'
 
 interface Props {
   open: boolean
@@ -38,96 +40,105 @@ export default function InstructorModal({
 }: Props) {
   const isEdit = Boolean(instructor)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // text fields
   const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
-  const [password, setPassword] = useState('')
-  const [bio, setBio]           = useState('')
-  const [link, setLink]         = useState('')
-  // role as string union
-  const [role, setRole]         = useState<Role>('instructor')
+  const [email, setEmail] = useState('')
+  const [bio, setBio] = useState('')
+  const [link, setLink] = useState('')
+  const [role] = useState<Role>('instructor')
 
-  // files + preview
-  const [imageFile, setImageFile]   = useState<File>()
-  const [cvFile, setCvFile]         = useState<File>()
+  // file + preview state
+  const [imageFile, setImageFile] = useState<File>()
+  const [cvFile, setCvFile] = useState<File>()
   const [previewUrl, setPreviewUrl] = useState<string>()
 
-  // on open, prefill if editing
+  // cropping state
+  const [cropModal, setCropModal] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string>()
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedArea, setCroppedArea] = useState<any>(null)
+
+  // initialize form fields when opening
   useEffect(() => {
     if (!open) return
     if (isEdit && instructor) {
       setFullName(instructor.full_name)
       setEmail(instructor.email)
-      setBio(instructor.bio ?? '')
-      setLink(instructor.link ?? '')
-      setRole(instructor.role)
-      setPreviewUrl(
-        instructor.image
-          ? `/uploads/instructors/${instructor.image}`
-          : undefined
-      )
+      setBio(instructor.bio || '')
+      setLink(instructor.link || '')
+      setPreviewUrl(instructor.image ? imageUrl(instructor.image) : undefined)
     } else {
       setFullName('')
       setEmail('')
-      setPassword('')
       setBio('')
       setLink('')
-      setRole('instructor')
       setPreviewUrl(undefined)
     }
     setImageFile(undefined)
     setCvFile(undefined)
+    setCropSrc(undefined)
+    setCropModal(false)
+    setZoom(1)
+    setCrop({ x: 0, y: 0 })
+    setCroppedArea(null)
   }, [open, isEdit, instructor])
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // handle file selection for cropping
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      setPreviewUrl(URL.createObjectURL(file))
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      setCropSrc(ev.target?.result as string)
+      setCropModal(true)
     }
+    reader.readAsDataURL(file)
+  }
+
+  const handleCropComplete = (_: any, pixels: any) => setCroppedArea(pixels)
+  const handleCropConfirm = async () => {
+    if (!cropSrc || !croppedArea) return
+    const blob = await getCroppedImg(cropSrc, croppedArea)
+    setImageFile(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
+    setPreviewUrl(URL.createObjectURL(blob))
+    setCropModal(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!fullName || !email || (!isEdit && !password)) {
-      toast.error('Name, email and (on create) password are required')
+    if (!fullName.trim() || !email.trim()) {
+      toast.error('Name and email are required')
       return
     }
     setIsSubmitting(true)
-
-    // Build DTO
+  
+    // Only include password on create (not edit)
     const dto: Partial<CreateInstructorDto & UpdateInstructorDto> = {
       full_name: fullName,
       email,
       role,
       bio: bio || undefined,
       link: link || undefined,
-      ...(isEdit ? {} : { password }),
+      ...(isEdit ? {} : { password: email }),
     }
-
-    // Build FormData
-    const formData = new FormData()
-    Object.entries(dto).forEach(([k, v]) => {
-      if (v != null) formData.append(k, v as any)
-    })
-    if (imageFile) formData.append('image', imageFile)
-    if (cvFile)    formData.append('cv', cvFile)
-
+  
     try {
-      let resp
-      if (isEdit) {
-        resp = await api.patch<Instructor>(
-          `/instructors/${instructor!.id}`,
-          formData
-        )
-        toast.success('Instructor updated!')
-      } else {
-        resp = await api.post<Instructor>('/instructors', formData)
-        toast.success('Instructor created!')
-      }
+      const url = isEdit ? `/instructors/${instructor!.id}` : '/instructors'
+      const formData = new FormData()
+      Object.entries(dto).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && v !== '') {
+          formData.append(k, v as any)
+        }
+      })
+      if (imageFile) formData.append('image', imageFile)
+      if (cvFile) formData.append('cv', cvFile)
+      const response = isEdit
+        ? await api.patch<Instructor>(url, formData)
+        : await api.post<Instructor>(url, formData)
+  
+      toast.success(isEdit ? 'Instructor updated!' : 'Instructor created!')
       onOpenChange(false)
-      onSuccess?.(resp.data)
+      onSuccess?.(response.data)
     } catch (err: any) {
       console.error(err)
       toast.error(err.response?.data?.message || err.message || 'Network error')
@@ -137,167 +148,170 @@ export default function InstructorModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[800px]">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">
-            {isEdit ? 'Edit Instructor' : 'Add Instructor'}
-          </DialogTitle>
-          <DialogDescription className="mb-6">
-            {isEdit
-              ? 'Update the details below and save your changes.'
-              : 'Fill out the form to create a new instructor.'}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      {/* Crop Dialog */}
+      {cropModal && cropSrc && (
+        <Dialog open={cropModal} onOpenChange={setCropModal}>
+          <DialogContent style={{ width: 400 }}>
+            <DialogHeader>
+              <DialogTitle>Crop & Zoom Image</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center">
+              <div style={{ position: 'relative', width: 300, height: 300, background: '#333' }}>
+                <Cropper
+                  image={cropSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={handleCropComplete}
+                />
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.01}
+                value={zoom}
+                onChange={e => setZoom(Number(e.target.value))}
+                className="w-full my-2"
+              />
+              <div className="flex gap-2 mt-2">
+                <Button variant="outline" onClick={() => setCropModal(false)}>Cancel</Button>
+                <Button onClick={handleCropConfirm}>Use Photo</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Avatar picker */}
-          <div className="flex justify-center">
+      {/* Main Modal */}
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent style={{ width: '90vw', maxWidth: 800 }}>
+          <DialogHeader>
+            <DialogTitle>{isEdit ? 'Edit Instructor' : 'Add Instructor'}</DialogTitle>
+            <DialogDescription>
+              {isEdit
+                ? 'Update the details below and save your changes.'
+                : 'Fill out the form to create a new instructor.'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center mb-6">
             <div className="relative w-32 h-32 group cursor-pointer">
               <div className="w-full h-full rounded-full border-4 border-teal-500 overflow-hidden bg-gray-100">
                 {previewUrl ? (
-                  <img
-                    src={previewUrl}
-                    alt="Profile preview"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
                     <Camera size={48} />
                   </div>
                 )}
               </div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-25 opacity-0 group-hover:opacity-100 transition">
-                <Camera className="text-white" size={24} />
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full">
+                <Camera size={24} className="text-white w-6 h-6" />
+                <span className="ml-2 text-white font-medium">Change</span>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0"
-              />
+              <input type="file" accept="image/*" onChange={handleImageSelect} className="absolute inset-0 opacity-0 cursor-pointer" />
             </div>
           </div>
 
-          {/* Full Name */}
-          <div>
-            <Label htmlFor="fullName" className="block mb-1">Full Name *</Label>
-            <Input
-              id="fullName"
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              placeholder="Jane Doe"
-              required
-              className="font-serif text-lg"
-            />
-          </div>
-
-          {/* Email / Password / Role */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="email" className="block mb-1">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="jane@example.com"
-                required
-              />
-            </div>
-            {!isEdit && (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1">
+                <Label>Full Name *</Label>
+                <Input value={fullName} onChange={e => setFullName(e.target.value)} required />
+              </div>
               <div>
-                <Label htmlFor="password" className="block mb-1">Password *</Label>
+                <Label>Email *</Label>
                 <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
-            )}
-            <div>
-              <Label htmlFor="role" className="block mb-1">Role *</Label>
-              <select
-                id="role"
-                value={role}
-                onChange={e => setRole(e.target.value as Role)}
-                className="w-full border rounded p-2"
-              >
-                <option value="instructor">Instructor</option>
-                <option value="gym_owner">Gym Owner</option>
-                <option value="admin">Admin</option>
-                <option value="superadmin">Superadmin</option>
-                <option value="subscriber">Subscriber</option>
-              </select>
             </div>
-          </div>
 
-          {/* Bio & Link */}
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="bio" className="block mb-1">Bio</Label>
+              <Label>Bio</Label>
               <textarea
-                id="bio"
                 value={bio}
                 onChange={e => setBio(e.target.value)}
-                placeholder="Short bio"
-                className="w-full border rounded-md p-2 h-24"
+                className="w-full rounded-md border px-3 py-2 h-24"
               />
             </div>
-            <div>
-              <Label htmlFor="link" className="block mb-1 flex items-center gap-2">
-                Link <Instagram className="text-pink-500" />
-              </Label>
-              <Input
-                id="link"
-                type="url"
-                value={link}
-                onChange={e => setLink(e.target.value)}
-                placeholder="https://instagram.com/username"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label>Upload CV (PDF)</Label>
+                <div
+                  className={`relative flex flex-col items-center justify-center border-2 border-dashed border-teal-400 bg-white rounded-xl cursor-pointer transition-all hover:bg-teal-50 min-h-[140px] px-4 py-6 ${cvFile ? 'border-teal-600 bg-teal-50' : ''}`}
+                  onClick={() => document.getElementById('cvInput')?.click()}
+                  onDrop={e => {
+                    e.preventDefault()
+                    if (e.dataTransfer.files.length) setCvFile(e.dataTransfer.files[0])
+                  }}
+                  onDragOver={e => e.preventDefault()}
+                >
+                  {!cvFile ? (
+                    <>
+                      <FileText size={36} className="text-teal-500 mb-2" />
+                      <span className="text-gray-700 font-medium">
+                        Drag & drop your CV here, or <span className="text-teal-600 underline">browse</span>
+                      </span>
+                      <span className="text-xs text-gray-400 mt-1">PDF only, max 5MB</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText size={36} className="text-teal-600 mb-2" />
+                      <span className="text-gray-800 font-semibold">{cvFile.name}</span>
+                      <button
+                        type="button"
+                        className="absolute top-2 right-2 text-sm text-red-500 hover:underline"
+                        onClick={e => { e.stopPropagation(); setCvFile(undefined) }}
+                      >
+                        Remove
+                      </button>
+                    </>
+                  )}
+                  <input
+                    id="cvInput"
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={e => setCvFile(e.target.files?.[0])}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Instagram Profile</Label>
+                <div className={`flex items-center gap-3 bg-white border-2 ${link ? 'border-teal-500' : 'border-gray-200'} rounded-xl shadow-md px-4 py-4 transition-all focus-within:border-teal-500`}>
+                  <Instagram size={28} className="text-teal-500" />
+                  <Input
+                    type="url"
+                    value={link}
+                    onChange={e => setLink(e.target.value)}
+                    placeholder="https://instagram.com/username"
+                    className="border-0 outline-none bg-transparent flex-1 text-lg placeholder-gray-400"
+                  />
+                  {link && (
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-teal-500 hover:underline text-sm font-medium">
+                      Preview
+                    </a>
+                  )}
+                </div>
+                <span className="text-xs text-gray-400 mt-1">Paste your Instagram profile link</span>
+              </div>
             </div>
-          </div>
 
-          {/* CV Upload */}
-          <div>
-            <Label className="block mb-1">Upload CV (PDF)</Label>
-            <Button
-              variant="outline"
-              onClick={() => document.getElementById('cvInput')?.click()}
-            >
-              <FileText className="inline mr-1" /> Choose CV
-            </Button>
-            <span className="ml-4">{cvFile?.name ?? 'No file chosen'}</span>
-            <input
-              id="cvInput"
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              onChange={e => setCvFile(e.target.files?.[0])}
-            />
-          </div>
-
-          {/* Actions */}
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? isEdit ? 'Saving...' : 'Creating...'
-                : isEdit ? 'Save Changes' : 'Create Instructor'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>{isEdit ? 'Save Changes' : 'Create Instructor'}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

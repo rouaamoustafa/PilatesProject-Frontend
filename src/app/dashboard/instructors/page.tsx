@@ -1,57 +1,72 @@
-// src/app/dashboard/instructors/page.tsx
 'use client'
 
-import { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import UserTable from '@/components/UserTable'
 import InstructorModal from '@/components/InstructorModal'
-import type { Instructor } from '@/types'
+import type { Instructor, Role } from '@/types'
+import { useAuth } from '@/hooks/useAuth'
+import { Button } from '@/components/ui/button'
 
 export default function InstructorsPage() {
-  const [search, setSearch] = useState('')
+  const { user, loading, error } = useAuth()
+  const router                  = useRouter()
+
+  const [search, setSearch]       = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [editingInst, setEditingInst] = useState<Instructor | null>(null)
-  const [reloadFlag, setReloadFlag] = useState(0)
+  const [editing, setEditing]     = useState<Instructor | undefined>(undefined)
+  const [tableKey, setTableKey]   = useState(0)
+
+  useEffect(() => {
+    if (!loading && error) {
+      router.replace('/login')
+    }
+  }, [loading, error, router])
+
+  if (loading) return <div className="p-8">Loading…</div>
+  if (error || !user) return null
+
+  const allowedRoles: Role[] = ['gym_owner', 'admin', 'superadmin']
+  if (!allowedRoles.includes(user.role)) {
+    return <div className="p-8 text-red-600">You don’t have access to this page.</div>
+  }
 
   const openNew = () => {
-    setEditingInst(null)
-    setModalOpen(true)
-  }
-  const openEdit = (inst: Instructor) => {
-    setEditingInst(inst)
+    setEditing(undefined)
     setModalOpen(true)
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={openNew}
-          className="bg-teal-600 text-white px-4 py-2 rounded"
-        >
-          + New Instructor
-        </button>
+    <div className="min-h-screen bg-gray-50 py-8 px-6">
+      <div className="container mx-auto max-w-6xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900">Instructors</h1>
+          <Button onClick={openNew}>+ New Instructor</Button>
+        </div>
+
+        <UserTable<Instructor>
+          key={tableKey}
+          endpoint="/instructors"
+          filterValue={search}
+          onFilterChange={setSearch}
+          showRole={false}
+          allowAdd={false}
+          onEdit={inst => {
+            setEditing(inst ?? undefined)
+            setModalOpen(true)
+          }}
+        />
+
+        <InstructorModal
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+          instructor={editing}
+          onSuccess={() => {
+            setModalOpen(false)
+            setTableKey(k => k + 1)
+          }}
+        />
       </div>
-
-      {/* Key on reloadFlag forces refresh when it changes */}
-      <UserTable
-        key={reloadFlag}
-        endpoint="/instructors"
-        filterValue={search}
-        onFilterChange={setSearch}
-        showRole={false}
-        allowAdd={false}          // Add handled via the button above
-        onEdit={openEdit}         // Called when “Edit” clicked
-      />
-
-      <InstructorModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        instructor={editingInst ?? undefined}
-        onSuccess={() => {
-          setModalOpen(false)
-          setReloadFlag(f => f + 1)
-        }}
-      />
     </div>
   )
 }

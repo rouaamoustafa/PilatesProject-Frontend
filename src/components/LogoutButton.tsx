@@ -1,11 +1,15 @@
-// src/components/LogoutButton.tsx
-'use client'
-import { logout } from '@/lib/logout'
+'use client';
+
+import { useLogout } from '@/hooks/useLogout';
 
 export default function LogoutButton() {
+  const logout = useLogout();
   return (
-    <button onClick={logout} className="text-red-600">
+    <button
+      onClick={logout}
+      className="ml-4 text-gray-700 hover:text-teal-900"
+    >
       Logout
     </button>
-  )
+  );
 }

@@ -1,37 +1,61 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle, LogIn } from 'lucide-react'
+import api from '@/store/api/axios'
+import { useAppDispatch } from '@/store';
+import { fetchCurrentUser, setToken } from '@/store/slices/authSlice'
+import { useAddToCartMutation } from '@/store/cartEndpoints'
 
 export default function RegisterPage() {
   const router = useRouter()
   const [form, setForm] = useState({ full_name: '', email: '', password: '' })
+  const searchParams = useSearchParams()
+  const nextPath =searchParams.get('next')?? '/'
+  const addCourse =searchParams.get('add')
+
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
+  const [addToCart] = useAddToCartMutation();
+  
+
+  interface RegisterResponse {
+    token: string
+    // any other fields your backend returns
+  }
+  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setError('');
+    setIsLoading(false);
     try {
-      const res = await fetch('http://localhost:3000/auth/register', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'Registration failed')
-      router.replace('/login')
-    } catch (err: any) {
-      setError(err.message)
-    }
-  }
+      const { data } = await api.post<{ token: string }>('/auth/register', form);
+      //localStorage.setItem('auth_token', data.token);
+      dispatch(setToken(data.token));
+      const user = await dispatch(fetchCurrentUser()).unwrap();
 
+
+      if (addCourse) {
+        try { await addToCart({ courseId: addCourse }).unwrap(); } catch {}
+      }
+      const hasDash = ['superadmin','admin','gym_owner','instructor'].includes(user.role);
+      router.replace(hasDash ? '/login' : '/login');
+    } catch (err: any) {
+      setError(err.response?.data?.message || err.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <form

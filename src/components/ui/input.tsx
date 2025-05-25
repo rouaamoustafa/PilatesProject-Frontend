@@ -1,4 +1,3 @@
-// src/components/ui/input.tsx
 import { InputHTMLAttributes, forwardRef } from 'react';
 import clsx from 'clsx';
 

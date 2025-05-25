@@ -1,15 +1,28 @@
 'use client';
 
+import UpButton from '@/components/upButton';
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!loading && user) {
+      // ← subscriber NOT in this list!
+      if (['superadmin','admin','gym_owner','instructor'].includes(user.role)) {
+        router.replace('/dashboard')
+      }
+    }
+  }, [user, loading, router]) 
 
   if (loading) {
     return (
       <div className="fixed inset-0 bg-gray-50 flex items-center justify-center z-50">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-teal-900"></div>
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-[#2e372c]"></div>
     </div>
     );
   }
@@ -17,20 +30,7 @@ export default function Home() {
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
       {/* Nav */}
-     
-
       <main className="flex-1 container mx-auto px-4 py-16">
-        {user ? (
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-teal-900">
-              Welcome, {user.full_name}!
-            </h1>
-            <p className="mt-2 text-gray-700">
-              You’re logged in as <strong>{user.role}</strong>.
-            </p>
-          </div>
-        ) : (
-          <>
             {/* Hero */}
             <section className="pt-13 flex flex-col items-center text-center max-w-3xl mx-auto px-4">
   {/* Logo */}
@@ -41,13 +41,13 @@ export default function Home() {
   />
 
   {/* Headline */}
-  <h1 className="text-4xl md:text-5xl font-serif text-teal-900 leading-relaxed md:leading-snug">
+  <h1 className="text-4xl md:text-5xl font-serif text-[#2e372c] leading-relaxed md:leading-snug">
     Success Start with movement,<br/>
     with <span className="text-orange-400">PILATES</span>
   </h1>
 
   {/* Description */}
-  <p className="mt-6 text-gray-700 max-w-xxl">
+  <p className="mt-6 text-[#2e372c] max-w-xxl">
     PilatesHub is your all-in-one space for mindful movement. Whether you’re a student seeking balance, an instructor guiding growth, or a studio owner building community — our platform connects you with classes, programs, and people who move with purpose.
   </p>
 
@@ -64,7 +64,7 @@ export default function Home() {
 
 
             {/* About */}
-            <section className="mt-20 flex flex-col md:flex-row items-center md:items-start gap-8">
+            {/* <section className="mt-20 flex flex-col md:flex-row items-center md:items-start gap-8">
               <div className="md:w-1/2">
                 <h2 className="text-2xl font-serif text-teal-900 inline-block border-b-2 border-teal-900 mb-4">
                   About Us
@@ -83,51 +83,69 @@ export default function Home() {
                   className="w-full rounded-lg shadow-md object-cover"
                 />
               </div>
-            </section>
+            </section> */}
             {/* Divider */}
-         <div className="mt-16 border-t border-teal-900 w-[70%] mx-auto"></div>
+         <div className="mt-16 border-t border-[#2e372c] w-[70%] mx-auto"></div>
 
             {/* Our Approach */}
-            <section className="mt-20 container mx-auto max-w-7xl px-6 text-center">
-  <h2 className=" text-3xl font-serif text-teal-900 mb-4">
+<section className="mt-20 container mx-auto max-w-10xl px-6">
+  {/* Title */}
+  <h2 className="text-6xl font-serif text-[#2e372c] text-start mb-16">
     Our Approach
   </h2>
 
-  <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] items-start gap-8">
-    {/* Left image */}
-    <img
-      src="/images/left-pilates.jpg"
-      alt="Pilates session"
-      className="mt-50 w-full h-[160px] object-cover rounded-md shadow-md"
-    />
+  {/* Top Layout: Left + Text + Right */}
+  <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-6 items-start">
+    {/* Left Image */}
+    <div className="overflow-hidden rounded-md shadow-md">
+      <img
+        src="/images/left-pilates.jpg"
+        alt="Left"
+        className="w-full h-[220px] object-cover transition-transform duration-600 hover:scale-105"
+      />
+    </div>
 
-    {/* Center text block */}
-    <div className="mt-50 px-4 flex items-start justify-center">
-      <p className="text-teal-900 font-serif text-lg md:text-xl leading-relaxed">
+    {/* Center Text */}
+    <div className="flex items-center justify-center text-center">
+      <p className="text-[#2e372c] font-serif text-2xl leading-relaxed max-w-md">
         We blend expert instruction with personalized care to help you achieve your goals. Our focus is on mindful movement, proper alignment, and creating a welcoming space for everyone.
       </p>
     </div>
 
-    {/* Right image */}
-    <img
-      src="/images/right-pilates.jpg"
-      alt="Pilates reformer"
-      className="w-full h-[340px] object-cover rounded-md shadow-md"
-    />
-  </div>
+    {/* Right Image */}
+    <div className="row-span-2 overflow-hidden rounded-md shadow-md">
+      <img
+        src="/images/right-pilates.jpg"
+        alt="Right"
+        className="w-full h-full object-cover transition-transform duration-600 hover:scale-105"
+      />
+    </div>
 
-  {/* Bottom image centered */}
-  <div className="mt-12">
-    <img
-      src="/images/center-pilates.jpg"
-      alt="Group Pilates class"
-      className="mt-20 w-full md:w-1/2 h-[300px] mx-auto object-cover rounded-md shadow-md"
-    />
+    {/* Bottom Row: Image + Text Side-by-Side */}
+    <div className="col-span-3 grid md:grid-cols-2 gap-13 mt-40 items-center">
+      {/* Bottom Image */}
+      <div className="overflow-hidden rounded-md shadow-md">
+        <img
+          src="/images/center-pilates.jpg"
+          alt="Bottom"
+          className="w-full h-[300px] object-cover transition-transform duration-600 hover:scale-105"
+        />
+      </div>
+
+      {/* Bottom Text */}
+      <p className="text-[#2e372c] font-serif text-2xl leading-relaxed">
+        Every movement begins with intention. At PilatesHub, we empower every client with techniques that foster strength, awareness, and resilience. This is more than fitness — it's functional well-being for your life.
+      </p>
+    </div>
   </div>
 </section>
 
+
+
+
+
 {/* Services */}
-<section className="mt-20 bg-gray-50">
+<section className="mt-60 bg-gray-50 mb-30">
   <div className="container mx-auto px-4 py-16 grid gap-12 md:grid-cols-3">
     {[
       {
@@ -151,13 +169,13 @@ export default function Home() {
     ].map(({ title, text, href, label }) => (
       <div key={title} className="flex flex-col">
         <div className="flex items-center mb-4">
-          <h3 className="text-2xl font-serif text-teal-900">{title}</h3>
-          <div className="flex-1 h-px bg-teal-900 ml-4"></div>
+          <h3 className="text-2xl font-serif text-[#2e372c]">{title}</h3>
+          <div className="flex-1 h-px bg-[#2e372c] ml-4"></div>
         </div>
         <p className="text-gray-700 flex-1">{text}</p>
         <Link
           href={href}
-          className="mt-8 inline-block bg-teal-900 text-white py-3 px-6 rounded hover:bg-teal-800 transition text-center"
+          className="mt-8 inline-block bg-[#2e372c] text-white py-3 px-6 rounded hover:bg-[#2e372c] transition text-center"
         >
           {label}
         </Link>
@@ -167,9 +185,9 @@ export default function Home() {
 </section>
 
 
-          </>
-        )}
+       
       </main>
+      <UpButton/>
     </div>
   );
 }
