@@ -1,7 +1,7 @@
-import ContactClient from "@/components/ContactClient"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-export const dynamic = "force-dynamic"
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ContactClient from "@/components/ContactClient";
+export const dynamic = "force-dynamic";
 
 export default function ContactUsPage() {
   return (
@@ -10,5 +10,5 @@ export default function ContactUsPage() {
       <ContactClient />
       <Footer />
     </>
-  )
+  );
 }
