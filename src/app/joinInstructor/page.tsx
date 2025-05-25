@@ -68,7 +68,7 @@ export default function JoinInstructorPage() {
   </h1>
 </div>
 
-      <div className="max-w-10xl mx-auto flex items-center justify-between mt-20">
+      <div className="max-w-10xl mx-auto flex items-center justify-between mt-40 mb-40">
         {n > 1 && (
   <button
     onClick={prev}
@@ -87,20 +87,51 @@ export default function JoinInstructorPage() {
           {windowInstructors.map((inst) => {
             const src = inst.image ? imageUrl(inst.image) : '/placeholder.png'
             return (
-              <div
-                key={inst.id}
-                className="relative w-[380px] h-[500px] rounded-lg overflow-hidden shadow-md group"
-              >
-                <img
-                  src={src}
-                  alt={inst.full_name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute bottom-0 left-0 w-full bg-white bg-opacity-90 px-4 py-3">
-                  <h2 className="text-lg font-bold text-[#2e372c]">{inst.full_name}</h2>
-                  <p className="text-sm text-[#3E4939]">{inst.bio || 'No bio available.'}</p>
-                </div>
-              </div>
+             <div
+  key={inst.id}
+  className="grid grid-raws-[auto_1fr] items-center bg-white rounded-lg shadow overflow-hidden"
+>
+  {/* Instructor Image */}
+ <div className="overflow-hidden w-[380px] h-[400px]">
+  <img
+    src={inst.image ? imageUrl(inst.image) : '/placeholder.png'}
+    alt={inst.full_name}
+    className="w-full h-full object-cover transform transition-transform duration-500 hover:scale-105"
+  />
+</div>
+
+  {/* Right: Name/Bio stacked + Arrow aligned right */}
+  <div className="flex justify-between items-center w-full px-6">
+    <div className="flex flex-col">
+      <h2 className="text-lg font-semibold text-[#2e372c]">
+        {inst.full_name}
+      </h2>
+      <p className="text-sm text-[#4b5941]">
+  {(inst.bio && inst.bio.split(' ').length > 5)
+    ? inst.bio.split(' ').slice(0, 5).join(' ') + '...'
+    : inst.bio || 'No bio available.'}
+</p>
+    </div>
+
+    <a
+  href={`/joinInstructor/${inst.id}`}
+  className="ml-4 transition-transform duration-300 hover:scale-110 hover:translate-x-1 text-[#2e372c]"
+  aria-label="Show more"
+>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M9 6l6 6-6 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+</a>
+
+  </div>
+</div>
+
             )
           })}
         </div>

@@ -30,18 +30,19 @@ interface Props<T> {
   onFilterChange: (v: string) => void;
   onEdit: (item: T) => void;
   onDelete?: (id: string) => void | Promise<void>;
+  onRefresh?: () => void; // optional, parent can force full remount
 }
 
 export default function CourseTable<T extends { id: string }>({
-  endpoint, filterValue, onFilterChange, onEdit, onDelete,
+  endpoint, filterValue, onFilterChange, onEdit, onDelete, onRefresh,
 }: Props<T>) {
-  const [items, setItems]         = useState<T[]>([]);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState<string | null>(null);
-  const [page, setPage]           = useState(0);
-  const [pageSize, setPageSize]   = useState(12);
+  const [items, setItems] = useState<T[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(12);
   const [totalCount, setTotalCount] = useState(0);
-  const [expanded, setExpanded]   = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toDeleteId, setToDeleteId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -63,15 +64,29 @@ export default function CourseTable<T extends { id: string }>({
 
   useEffect(() => { fetchData() }, [fetchData]);
 
+  // Delete logic
   const confirmDelete = async () => {
     if (!toDeleteId) return;
     try {
-      if (onDelete) await onDelete(toDeleteId);
-      else await api.delete(`${endpoint}/${toDeleteId}`);
-      toast.success('Deleted');
-      fetchData();
-    } catch {
-      toast.error('Delete failed');
+      if (onDelete) {
+        await onDelete(toDeleteId);
+      } else {
+        await api.delete(`${endpoint}/${toDeleteId}`);
+      }
+      toast.success('Course deleted');
+      // Reset page to first page if it was last item on current page
+      if (items.length === 1 && page > 0) {
+        setPage(page - 1);
+      }
+      if (onRefresh) {
+        onRefresh();
+      } else {
+        fetchData();
+      }
+    } catch (err: any) {
+      toast.error(
+        err.response?.data?.message || 'Failed to delete. Try again.'
+      );
     } finally {
       setToDeleteId(null);
     }
@@ -96,7 +111,10 @@ export default function CourseTable<T extends { id: string }>({
     },
     { accessorKey: 'title', header: 'Title' },
     {
-      accessorFn: (r: any) => r.instructor.full_name,
+      accessorFn: (r: any) =>
+        r.instructor?.full_name ||
+        r.instructor?.user?.full_name ||
+        '—',
       id: 'instructor',
       header: 'Instructor',
     },
@@ -231,11 +249,17 @@ export default function CourseTable<T extends { id: string }>({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription>Are you sure you want to delete this course?</DialogDescription>
+            <DialogDescription>
+              Are you sure you want to delete this course?
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setToDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setToDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

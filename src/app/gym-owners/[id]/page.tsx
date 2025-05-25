@@ -4,18 +4,18 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import api from '@/store/api/axios'
 import type { GymOwner } from '@/types'
-import { Button } from '@/components/ui/button'
-import { MapPinIcon, PhoneIcon, ExternalLinkIcon } from 'lucide-react'
+import { MapPin, Phone, Mail, ExternalLink } from 'lucide-react'
 import { Pacifico } from 'next/font/google'
+import Link from 'next/link'
 
 const pacifico = Pacifico({ subsets: ['latin'], weight: '400' })
 
 export default function GymOwnerDetailPage() {
   const { id } = useParams() as { id: string }
   const router = useRouter()
-  const [owner, setOwner]     = useState<GymOwner | null>(null)
+  const [owner, setOwner] = useState<GymOwner | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -33,9 +33,9 @@ export default function GymOwnerDetailPage() {
     })()
   }, [id])
 
-  if (loading) return <p className="p-8 text-center">Loading…</p>
-  if (error)   return <p className="p-8 text-center text-red-600">{error}</p>
-  if (!owner)  return <p className="p-8 text-center">Not found</p>
+  if (loading) return <p className="p-20 text-center">Loading…</p>
+  if (error) return <p className="p-20 text-center text-red-600">{error}</p>
+  if (!owner) return <p className="p-20 text-center">Not found.</p>
 
   const addr = owner.address?.address
   const mapSrc = addr
@@ -43,91 +43,121 @@ export default function GymOwnerDetailPage() {
     : null
 
   return (
-    <div className="flex justify-center py-16 bg-gray-50 min-h-screen">
-      <div className="max-w-5xl w-full p-8 bg-white rounded-xl shadow space-y-6">
-        {/* ← Back button moved to top-left */}
-        <div>
-          <Button className="
-        inline-flex items-center 
-        text-teal-800 hover:text-teal-600 
-        font-medium
-        "   variant="outline" onClick={() => router.back()}>
-            ← Back
-          </Button>
-        </div>
+    <main className="bg-[#fafaf8] py-16 px-6 min-h-screen text-[#3E4939] font-serif mt-20">
+      <div className="max-w-6xl mx-auto space-y-12">
+        {/* Back Button */}
+        {/* <button
+          onClick={() => router.back()}
+          className="text-[#3E4939] border border-[#3E4939] px-4 py-2 rounded-lg hover:bg-[#3E4939]/10 transition"
+        >
+          ← Back
+        </button> */}
 
-        {/* Title centered below back button */}
-        <header className="text-left">
-          <h1 className={`${pacifico.className} text-5xl text-teal-900`}>
-            {owner.full_name}
-          </h1>
-        </header>
+        {/* Title */}
+        <h1 className={` text-[4rem] md:text-[6rem] font-serif leading-none`}>
+          {owner.full_name}
+        </h1>
 
+        {/* Bio */}
         {owner.bio && (
-          <blockquote className=" text-teal-700 leading-relaxed text-lg">
+          <p className="text-xl leading-relaxed italic max-w-3xl">
             “{owner.bio}”
-          </blockquote>
+          </p>
         )}
 
-        <div className="mt-6 flex flex-col md:flex-row gap-6">
-          <div className="md:w-1/2 space-y-4">
-            <ul className="list-disc list-inside text-gray-700 space-y-2">
-              <li>
-                <span className="font-medium">Email:</span>{' '}
-                <a
-                  href={`mailto:${owner.email}`}
-                  className="text-teal-600 hover:underline"
-                >
-                  {owner.email}
-                </a>
-              </li>
-              {owner.phone && (
-                <li>
-                  <span className="font-medium">Phone:</span> {owner.phone}
-                </li>
-              )}
-              {addr && (
-                <li>
-                  <span className="font-medium">Address:</span> {addr}
-                </li>
-              )}
-            </ul>
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Details */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <Mail className="w-5 h-5" />
+              <a
+                href={`mailto:${owner.email}`}
+                className="underline underline-offset-2 hover:text-[#3E4939]/80"
+              >
+                {owner.email}
+              </a>
+            </div>
+
+            {owner.phone && (
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5" />
+                <span>{owner.phone}</span>
+              </div>
+            )}
+
+            {addr && (
+              <div className="flex items-center gap-3">
+                <MapPin className="w-5 h-5" />
+                <span>{addr}</span>
+              </div>
+            )}
 
             {addr && (
               <a
-                href={
-                  owner.address!.mapLink ||
-                  `https://maps.google.com?q=${encodeURIComponent(addr)}`
-                }
+                href={owner.address?.mapLink || `https://maps.google.com?q=${encodeURIComponent(addr)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-teal-600 hover:underline"
+                className="inline-flex items-center gap-2 underline underline-offset-2 hover:text-[#3E4939]/80"
               >
-                <MapPinIcon className="w-5 h-5 mr-1" />
-                Open in Maps
-                <ExternalLinkIcon className="w-4 h-4 ml-1" />
+                Open in Maps <ExternalLink className="w-4 h-4" />
               </a>
             )}
           </div>
 
-          <div className="md:w-1/2 h-64 border rounded-lg overflow-hidden bg-gray-100">
+          {/* Map */}
+          <div className="rounded-xl overflow-hidden border bg-white shadow-lg h-72">
             {mapSrc ? (
               <iframe
                 src={mapSrc}
                 width="100%"
                 height="100%"
-                allowFullScreen
                 loading="lazy"
+                allowFullScreen
                 referrerPolicy="no-referrer-when-downgrade"
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
+              <div className="h-full flex items-center justify-center text-gray-400">
                 Map unavailable
               </div>
             )}
           </div>
         </div>
       </div>
+
+
+
+<section className="max-w-5xl mx-auto px-10 py-16 space-y-4 text-[#3E4939] font-serif mt-60 mb-20">
+  {[
+    { title: 'VINYASA YOGA', days: 'Mondays & Wednesdays', time: '09.00am - 10.00am' },
+    { title: 'PILATES FLOW', days: 'Tuesdays & Thursdays', time: '10.30am - 11.30am' },
+    { title: 'POWER YOGA', days: 'Fridays', time: '08.00am - 09.00am' },
+  ].map((item, idx) => (
+    <div
+      key={idx}
+      className="border-b border-[#3E4939] pb-4 flex justify-between items-center"
+    >
+      <span className="font-semibold text-lg">{item.title}</span>
+      <span className="text-sm">{item.days}</span>
+      <span className="text-sm">{item.time}</span>
+
+      <Link
+        href="/book"
+        className="transition-transform duration-200 hover:translate-x-1"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M9 6l6 6-6 6"
+            stroke="#3E4939"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
     </div>
+  ))}
+</section>
+
+    </main>
   )
 }

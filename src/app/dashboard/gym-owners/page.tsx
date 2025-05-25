@@ -16,12 +16,14 @@ export default function GymOwnersPage() {
     setSelected(null)
     setModalOpen(true)
   }
-  // accept null to match onEdit signature
-  const openEdit = (o: GymOwner | null) => {
-    setSelected(o)
+
+  // Always trigger modal for editing, pass object or null for new
+  const openEdit = (owner: GymOwner | null) => {
+    setSelected(owner)
     setModalOpen(true)
   }
 
+  // Every time an edit/create succeeds, close modal and bump key
   const handleSuccess = () => {
     setModalOpen(false)
     setTableKey(k => k + 1)
@@ -35,7 +37,7 @@ export default function GymOwnersPage() {
       </div>
 
       <UserTable<GymOwner>
-        key={tableKey}
+        key={tableKey} // triggers remount and fresh data
         endpoint="/gym-owners"
         filterValue={filter}
         onFilterChange={setFilter}
