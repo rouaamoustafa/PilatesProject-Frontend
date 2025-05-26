@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import api from '@/store/api/axios'
+import axios from 'axios'
 import { imageUrl } from '@/lib/storage'
 
 export interface Instructor {
@@ -20,7 +20,7 @@ export default function JoinInstructorPage() {
   useEffect(() => {
     ;(async () => {
       try {
-        const res = await api.get<{ users: Instructor[] }>('/instructors/public', {
+        const res = await axios.get<{ users: Instructor[] }>('/instructors/public', {
           params: { page: 0, pageSize: 50, search: '' },
         })
         setInstructors(res.data.users)
