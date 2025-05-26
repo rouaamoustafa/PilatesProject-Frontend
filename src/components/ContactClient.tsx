@@ -1,18 +1,28 @@
 // src/components/ContactClient.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import emailjs from '@emailjs/browser'
 
 export default function ContactClient() {
+  const searchParams = useSearchParams()
+  const prefillEmail = searchParams.get('email') ?? ''
+
   const [form, setForm] = useState({
     full_name: '',
-    email: '',
+    email: prefillEmail,
     subject: '',
     message: '',
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    if (prefillEmail) {
+      setForm((f) => ({ ...f, email: prefillEmail }))
+    }
+  }, [prefillEmail])
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -22,8 +32,7 @@ export default function ContactClient() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSuccess('')
+    setError(''); setSuccess('')
 
     if (!form.email || !form.message) {
       setError('Please fill in at least your email and message.')
@@ -34,12 +43,7 @@ export default function ContactClient() {
       .send(
         'service_vm6fedm',
         'template_g9ol0hv',
-        {
-          full_name: form.full_name,
-          email: form.email,
-          subject: form.subject,
-          message: form.message,
-        },
+        { ...form },
         'Xj730mnMzgxCUOnaT'
       )
       .then(() => {
