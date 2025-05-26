@@ -1,34 +1,3 @@
-import axios from 'axios'
-
-// point at the Next.js rewrite proxy
-const api = axios.create({
-  baseURL: '/api',
-  withCredentials: false, // or true if you switch to cookie-auth
-})
-
-api.interceptors.request.use(cfg => {
-  const token = typeof window !== 'undefined'
-    ? localStorage.getItem('auth_token')
-    : null
-  if (token && cfg.headers) {
-    cfg.headers.Authorization = `Bearer ${token}`
-  }
-  console.log('[API Request]', cfg.method, cfg.baseURL + cfg.url, 'Auth:', cfg.headers?.Authorization)
-  return cfg
-})
-
-api.interceptors.response.use(
-  r => r,
-  err => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('auth_token')
-    }
-    return Promise.reject(err)
-  }
-)
-
-export default api
-
 // import type { UpdateGymOwnerDto, UpdateInstructorDto } from "@/types";
 // import axios from "axios";
 
@@ -77,3 +46,33 @@ export default api
 
 // export default api;
 // export { api };
+import axios from 'axios'
+
+// point at the Next.js rewrite proxy
+const api = axios.create({
+  baseURL: '/api',
+  withCredentials: false, // or true if you switch to cookie-auth
+})
+
+api.interceptors.request.use(cfg => {
+  const token = typeof window !== 'undefined'
+    ? localStorage.getItem('auth_token')
+    : null
+  if (token && cfg.headers) {
+    cfg.headers.Authorization = `Bearer ${token}`
+  }
+  console.log('[API Request]', cfg.method, cfg.baseURL + cfg.url, 'Auth:', cfg.headers?.Authorization)
+  return cfg
+})
+
+api.interceptors.response.use(
+  r => r,
+  err => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('auth_token')
+    }
+    return Promise.reject(err)
+  }
+)
+
+export default api
