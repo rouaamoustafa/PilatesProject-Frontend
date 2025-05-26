@@ -57,10 +57,10 @@ export default function AdminsPage() {
     setSelected(null)
     setModalOpen(true)
   }
-  const openEdit = (admin: User) => {
-    setSelected(admin)
-    setModalOpen(true)
-  }
+  // const openEdit = (admin: User) => {
+  //   setSelected(admin)
+  //   setModalOpen(true)
+  // }
   const handleSuccess = (updatedAdmin?: User) => {
     setModalOpen(false)
     // reload entire list, or update locally:
@@ -126,9 +126,9 @@ export default function AdminsPage() {
                 <td className="p-3">{admin.full_name}</td>
                 <td className="p-3">{admin.email}</td>
                 <td className="p-3 flex justify-center space-x-2">
-                  <Button size="sm" onClick={() => openEdit(admin)}>
+                  {/* <Button size="sm" onClick={() => openEdit(admin)}>
                     Edit
-                  </Button>
+                  </Button> */}
                   <Button
                     size="sm"
                     variant="destructive"

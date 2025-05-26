@@ -18,7 +18,6 @@ import {
   Course, CreateCourseDto, UpdateCourseDto,
   Level, Mode, InstructorOption, LocationOption,
 } from '@/types';
-import { useAuth } from '@/hooks/useAuth';
 
 interface PublicInstructorsResponse {
   users: InstructorOption[];
@@ -38,7 +37,6 @@ export default function CourseModal({
   open, onOpenChange, course, onSuccess,
 }: Props) {
   const isEdit = !!course;
-  const { user } = useAuth();
   const [busy, setBusy] = useState(false);
 
   // form state
@@ -55,61 +53,24 @@ export default function CourseModal({
   const [instructors, setInstructors] = useState<InstructorOption[]>([]);
   const [locations, setLocations]     = useState<LocationOption[]>([]);
 
-  // Robustly fetch instructors for gym owners (and flatten if needed)
   useEffect(() => {
     if (!open) return;
 
-    const fetchInstructors = async () => {
-      try {
-        if (user?.role === 'gym_owner') {
-          const { data } = await api.get('/gym-owners/me/instructors');
-          // Accepts both flat [{id, full_name...}] and nested [{user:{id,full_name...}}]
-          const flat: InstructorOption[] = Array.isArray(data)
-            ? data.map((i: any) =>
-                i.id && i.full_name
-                  ? i
-                  : {
-                      id: i.user?.id,
-                      full_name: i.user?.full_name,
-                      email: i.user?.email,
-                      role: i.user?.role,
-                    }
-              )
-            : [];
-          setInstructors(flat);
-        } else {
-          const { data } = await api.get<PublicInstructorsResponse>('/instructors/public', {
-            params: { page: 0, pageSize: 100, search: '' },
-          });
-          setInstructors(data.users);
-        }
-      } catch {
-        toast.error('Failed loading instructors');
-      }
-    };
+    // fetch ALL instructor data
+    api.get<PublicInstructorsResponse>('/instructors/public', {
+      params: { page: 0, pageSize: 100, search: '' },
+    })
+      .then(res => setInstructors(res.data.users))
+      .catch(() => toast.error('Failed loading instructors'));
 
-    const fetchLocations = async () => {
-      try {
-        const { data } = await api.get<LocationOption[]>('/locations');
-        setLocations(data);
-      } catch {
-        toast.error('Failed loading locations');
-      }
-    };
-
-    fetchInstructors();
-    fetchLocations();
+    // fetch ALL location data
+    api.get<LocationOption[]>('/locations')
+      .then(res => setLocations(res.data))
+      .catch(() => toast.error('Failed loading locations'));
 
     if (isEdit && course) {
       setTitle(course.title);
-
-      // Robust: Accept id in instructor or instructor.user
-      const instructorId =
-        (course.instructor as any)?.id ||
-        (course.instructor as any)?.user?.id ||
-        '';
-      setInstructorId(instructorId);
-
+      setInstructorId(course.instructor.user.id);
       setLevel(course.level);
       setMode(course.mode);
       setLocationId(course.location?.id || '');
@@ -118,6 +79,7 @@ export default function CourseModal({
       setStartTime(course.startTime);
       setDurationMinutes(course.durationMinutes);
     } else {
+      // reset
       setTitle('');
       setInstructorId('');
       setLevel(Level.BEGINNER);
@@ -128,8 +90,7 @@ export default function CourseModal({
       setStartTime('');
       setDurationMinutes(60);
     }
-  // eslint-disable-next-line
-  }, [open, isEdit, course, user?.role]);
+  }, [open, isEdit, course]);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -156,16 +117,10 @@ export default function CourseModal({
         await api.patch(`/courses/${course.id}`, dto);
         toast.success('Course updated');
       } else {
-        // Use special endpoint for gym owner; admin uses public
-        if (user?.role === 'gym_owner') {
-          await api.post('/courses/me', dto);
-        } else {
-          await api.post('/courses', dto);
-        }
+        await api.post('/courses', dto);
         toast.success('Course created');
       }
       onSuccess?.();
-      onOpenChange(false);
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Error saving course');
     } finally {
@@ -211,7 +166,7 @@ export default function CourseModal({
               <SelectContent>
                 {instructors.map(i => (
                   <SelectItem key={i.id} value={i.id}>
-                    {i.full_name} – {i.email} {i.role ? `(${i.role})` : ''}
+                    {i.full_name} – {i.email} ({i.role})
                   </SelectItem>
                 ))}
               </SelectContent>

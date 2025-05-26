@@ -129,24 +129,24 @@ export default function CourseTable<T extends { id: string }>({
       id: 'location',
       header: 'Location',
     },
-    {
-      id: 'actions',
-      header: 'Actions',
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-          <Button size="icon" onClick={() => onEdit(row.original)}>
-            <Edit2 size={16} />
-          </Button>
-          <Button
-            size="icon"
-            variant="destructive"
-            onClick={() => setToDeleteId(row.id)}
-          >
-            <Trash2 size={16} />
-          </Button>
-        </div>
-      ),
-    },
+    // {
+    //   id: 'actions',
+    //   header: 'Actions',
+    //   cell: ({ row }) => (
+    //     <div className="flex gap-2">
+    //       <Button size="icon" onClick={() => onEdit(row.original)}>
+    //         <Edit2 size={16} />
+    //       </Button>
+    //       <Button
+    //         size="icon"
+    //         variant="destructive"
+    //         onClick={() => setToDeleteId(row.id)}
+    //       >
+    //         <Trash2 size={16} />
+    //       </Button>
+    //     </div>
+    //   ),
+    // },
   ];
 
   const table = useReactTable({

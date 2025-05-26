@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import CourseTable from '@/components/CourseTable'
 import CourseModal from '@/components/CourseModal'
 import type { Course } from '@/types'
-import { useAuth } from '@/hooks/useAuth'   // <--- Make sure you have this hook
+import { useAuth } from '@/hooks/useAuth'
 
 export default function ClassesPage() {
   const [filter, setFilter] = useState('')
@@ -14,10 +14,12 @@ export default function ClassesPage() {
   const [tableKey, setTableKey] = useState(0)
   const { user } = useAuth()
 
-  // Pick the right endpoint based on role
+  // Endpoint logic
   let endpoint = '/courses'
   if (user?.role === 'gym_owner') {
-    endpoint = '/courses/me'
+    endpoint = '/courses/gym-owner/me'
+  } else if (user?.role === 'instructor') {
+    endpoint = '/courses/instructor/me'    // <--- This is what you need!
   }
 
   const openNew = () => {
@@ -39,13 +41,14 @@ export default function ClassesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Courses</h1>
-        {/* Only gym owner or admin can add, if needed add logic here */}
-        <Button onClick={openNew}>+ New Course</Button>
+         {user?.role !== 'instructor' && ( // Hide "+ New Course" for instructors if needed
+          <Button onClick={openNew}>+ New Course</Button>
+        )}
       </div>
 
       <CourseTable<Course>
         key={tableKey}
-        endpoint={endpoint}             // <--- This line does the magic
+        endpoint={endpoint}
         filterValue={filter}
         onFilterChange={setFilter}
         onEdit={openEdit}

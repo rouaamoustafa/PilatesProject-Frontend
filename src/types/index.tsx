@@ -180,6 +180,14 @@ export interface CartLine {
     // Add other course props if you use more
   };
 }
+export interface CourseGym {
+  id: string;
+  title: string;
+  days: string;              // e.g., "Mondays & Wednesdays"
+  time: string;              // e.g., "09.00am - 10.00am"
+  instructorName?: string;   // optional, show instructor if you want
+  bookUrl?: string;          // optional, url to book page
+}
 // export interface CartLine {
 //   id: string
 //   course: {

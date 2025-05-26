@@ -111,7 +111,7 @@ export default function InstructorModal({
       return
     }
     setIsSubmitting(true)
-  
+
     // Only include password on create (not edit)
     const dto: Partial<CreateInstructorDto & UpdateInstructorDto> = {
       full_name: fullName,
@@ -121,7 +121,7 @@ export default function InstructorModal({
       link: link || undefined,
       ...(isEdit ? {} : { password: email }),
     }
-  
+
     try {
       const url = isEdit ? `/instructors/${instructor!.id}` : '/instructors'
       const formData = new FormData()
@@ -135,7 +135,7 @@ export default function InstructorModal({
       const response = isEdit
         ? await api.patch<Instructor>(url, formData)
         : await api.post<Instructor>(url, formData)
-  
+
       toast.success(isEdit ? 'Instructor updated!' : 'Instructor created!')
       onOpenChange(false)
       onSuccess?.(response.data)

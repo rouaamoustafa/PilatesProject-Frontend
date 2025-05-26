@@ -92,29 +92,51 @@ export default function InstructorDetailPage() {
           COURSES WITH {instructor.full_name}
         </h2>
 
-        <div className="space-y-10">
-          {courses.length === 0 ? (
-            <p className="text-center text-gray-500">No scheduled classes found.</p>
-          ) : (
-            courses.map((course, idx) => {
-              const start = course.startTime.slice(0, 5)
-              const end = new Date(new Date(`1970-01-01T${course.startTime}`).getTime() + course.durationMinutes * 60000)
-                .toTimeString()
-                .slice(0, 5)
+     <div className="space-y-10">
+  {courses.length === 0 ? (
+    <p className="text-center text-gray-500">No scheduled classes found.</p>
+  ) : (
+    courses.map((course, idx) => {
+      const start = course.startTime.slice(0, 5)
+      const end = new Date(new Date(`1970-01-01T${course.startTime}`).getTime() + course.durationMinutes * 60000)
+        .toTimeString()
+        .slice(0, 5)
 
-              return (
-                <div key={idx}>
-                  <div className="flex justify-between items-center text-sm md:text-lg font-medium">
-  <span className="capitalize">{course.title}</span>
-  <span>{start} - {end}</span>
-  <span>{course.location?.address || '—'}</span>
-</div>
-                  <hr className="mt-2 border-[#3E4939]" />
-                </div>
-              )
-            })
-          )}
+      return (
+        <div key={idx}>
+          <div className="flex justify-between items-center text-sm md:text-lg font-medium group">
+            <span className="capitalize">{course.title}</span>
+            <span>{start} - {end}</span>
+            <span>{course.location?.address || '—'}</span>
+            <a
+              href={'/book'}
+              className="ml-4 transition-transform group-hover:translate-x-2 group-hover:scale-125 duration-500"
+              title="Book now"
+            >
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="inline"
+                style={{ verticalAlign: 'middle' }}
+              >
+                <path
+                  d="M9 6l6 6-6 6"
+                  stroke="#3E4939"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </a>
+          </div>
+          <hr className="mt-2 border-[#3E4939]" />
         </div>
+      )
+    })
+  )}
+</div> 
       </section>
     </div>
   )
