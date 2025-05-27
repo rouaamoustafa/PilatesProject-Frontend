@@ -18,7 +18,7 @@ export default function GymOwnersPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await axios.get<{ users: GymOwner[] }>('/gym-owners')
+        const res = await axios.get<{ users: GymOwner[] }>('api/gym-owners')
         setOwners(res.data.users)
       } catch (err) {
         console.error(err)

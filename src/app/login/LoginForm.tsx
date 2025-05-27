@@ -36,32 +36,36 @@ const next = nextUrl ?? params.get('next') ?? '/'
     setError(null)
     setLoading(true)
 
-    try {
-      // 1. Login and store token
-      const { data } = await axios.post<{ token: string }>('https://pilatesproject-backend-3zu5.onrender.com/api/auth/login', {
-        email:    form.email,
-        password: form.password,
-      })
-      localStorage.setItem('auth_token', data.token)
-      dispatch(setToken(data.token))
+     try {
+    // 1. Login and store token
+    const { data } = await axios.post<{ token: string }>('/api/auth/login', {
+      email: form.email,
+      password: form.password,
+    });
+    localStorage.setItem('auth_token', data.token)
+   //dispatch(setToken(data.token))
+   // ← wire up axios defaults so all future axios.get/post calls send the token
+   axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+   dispatch(setToken(data.token))
 
-      // 2. Fetch current user
-      await dispatch(fetchCurrentUser()).unwrap()
+    // 2. Fetch current user (will now include Authorization header)
+    await dispatch(fetchCurrentUser()).unwrap()
 
-      // 3. Merge guest cart
-      const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]')
-      for (const g of guestCart) {
-        await api.post('/cart', { courseId: g.course.id }).catch(()=>{})
-      }
-      localStorage.removeItem('guest_cart')
-
-      // 4. Redirect
-      router.replace(next)
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Login failed')
-    } finally {
-      setLoading(false)
+    // 3. Merge guest cart
+    const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]')
+    for (const g of guestCart) {
+      await api.post('/cart', { courseId: g.course.id }).catch(()=>{})
     }
+    localStorage.removeItem('guest_cart')
+
+    // 4. Redirect
+    router.replace(next)
+  } catch (err: any) {
+    setError(err.response?.data?.message || err.message || 'Login failed')
+  } finally {
+    setLoading(false)
+  }
+ 
   }
 
   return (
