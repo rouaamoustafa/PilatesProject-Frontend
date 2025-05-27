@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import api from '@/store/api/axios'
 import { imageUrl } from '@/lib/storage'
 import { motion } from 'framer-motion'
+import axios from 'axios'
 
 export interface Instructor {
   id: string
@@ -19,9 +20,9 @@ export default function JoinInstructorPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    ;(async () => {
+    ;(async () => { 
       try {
-        const res = await api.get<{ users: Instructor[] }>('/instructors/public', {
+        const res = await axios.get<{ users: Instructor[] }>('api/instructors/public', {
           params: { page: 0, pageSize: 50, search: '' },
         })
         setInstructors(res.data.users)
