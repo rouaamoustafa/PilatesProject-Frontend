@@ -5,6 +5,7 @@ import Link from 'next/link'
 import api from '@/store/api/axios'
 import { MapPin, Info } from 'lucide-react'
 import type { GymOwner } from '@/types'
+import axios from 'axios'
 
 const INITIAL_DISPLAY = 4
 
@@ -17,7 +18,7 @@ export default function GymOwnersPage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await api.get<{ users: GymOwner[] }>('/gym-owners')
+        const res = await axios.get<{ users: GymOwner[] }>('/gym-owners')
         setOwners(res.data.users)
       } catch (err) {
         console.error(err)

@@ -9,6 +9,7 @@ import api from '@/store/api/axios'
 import { useAppDispatch } from '@/store'
 import { setToken, fetchCurrentUser } from '@/store/slices/authSlice'
 import { useAddToCartMutation } from '@/store/cartEndpoints'
+import axios from 'axios'
 
 export default function RegisterForm() {
   const router       = useRouter()

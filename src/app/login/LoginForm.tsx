@@ -7,6 +7,7 @@ import api from '@/store/api/axios'
 import { useAppDispatch } from '@/store'
 import { setToken, fetchCurrentUser } from '@/store/slices/authSlice'
 import { useAuth } from '@/hooks/useAuth'
+import axios from 'axios'
 
 export default function LoginForm({ nextUrl }: { nextUrl?: string }) {
   const dispatch      = useAppDispatch()
