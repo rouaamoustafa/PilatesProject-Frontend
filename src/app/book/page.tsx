@@ -68,13 +68,14 @@ export default function BookPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12 px-4">
+    <main className="min-h-screen bg-gray-50 py-12 px-4 mt-20">
       {/* Page title */}
-      <div className="flex items-center justify-center mb-8">
-        <CalendarIcon className="h-8 w-8 text-teal-900 mr-2" />
-        <h1 className="text-4xl font-serif text-teal-900">Schedule a Class</h1>
-      </div>
-
+      <div className="flex items-center justify-center mb-8 px-2">
+  {/* <CalendarIcon className="h-8 w-8 text-teal-900 mr-2" /> */}
+  <h1 className="font-serif text-[#2e372c] text-3xl sm:text-5xl md:text-7xl lg:text-8xl xl:text-[120px] 2xl:text-[150px] text-center leading-tight">
+    Schedule a Class
+  </h1>
+</div>
       {/* Calendar */}
       <div className="mx-auto max-w-md bg-white rounded-lg shadow p-4 mb-12">
         <div className="text-center font-semibold text-lg mb-2">
@@ -89,7 +90,7 @@ export default function BookPage() {
           {calendarDays.map((day, idx) => {
             const inMonth = isSameMonth(day, monthStart)
             const todayClass = isToday(day)
-              ? 'bg-teal-900 text-white'
+              ? 'bg-[#2e372c] text-white'
               : 'text-gray-800'
             return (
               <div
@@ -111,7 +112,7 @@ export default function BookPage() {
           onClick={() => setTab('classe')}
           className={`pb-2 border-b-2 ${
             tab === 'classe'
-              ? 'border-teal-900 text-teal-900'
+              ? 'border-[#2e372c] text-[#2e372c]'
               : 'border-transparent text-gray-600'
           }`}
         >
@@ -121,7 +122,7 @@ export default function BookPage() {
           onClick={() => setTab('programs')}
           className={`pb-2 border-b-2 ${
             tab === 'programs'
-              ? 'border-teal-900 text-teal-900'
+              ? 'border-[#2e372c] text-[#2e372c]'
               : 'border-transparent text-gray-600'
           }`}
         >
@@ -143,7 +144,7 @@ export default function BookPage() {
         <div className="grid grid-cols-3 gap-4">
             {/* Info */}
             <div className="col-span-2 space-y-2">
-             <h2 className="text-2xl font-semibold">{c.title}</h2>
+             <h2 className="text-2xl text-[#2e372c] font-semibold">{c.title}</h2>
               <p className="text-gray-600 flex items-center">
                 <User className="h-4 w-4 mr-1" />
                {c.instructor.user.full_name}
@@ -172,7 +173,7 @@ export default function BookPage() {
           {/* Bottom: full-width Book Now */}
           <Link
             href={`/book/classe/${c.id}`}
-            className="mt-4 w-full bg-teal-900 text-white py-3 rounded-lg text-center font-medium flex items-center justify-center gap-2 hover:bg-teal-800 transition"
+            className="mt-4 w-full bg-[#2e372c] text-white py-3 rounded-lg text-center font-medium flex items-center justify-center gap-2 hover:bg-[#2e372c] transition"
           >
            <CalendarIcon className="h-5 w-5" />
             Book now

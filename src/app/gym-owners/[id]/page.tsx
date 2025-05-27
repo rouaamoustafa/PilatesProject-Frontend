@@ -43,30 +43,30 @@ export default function GymOwnerDetailPage() {
     : null
 
   return (
-    <main className="bg-[#fafaf8] py-16 px-6 min-h-screen text-[#3E4939] font-serif mt-20">
-      <div className="max-w-6xl mx-auto space-y-12">
-        <h1 className="text-[4rem] md:text-[6rem] font-serif leading-none">
+    <main className="bg-[#fafaf8] py-10 sm:py-16 px-3 sm:px-6 min-h-screen text-[#3E4939] font-serif mt-20">
+      <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12">
+        <h1 className="text-3xl sm:text-[4rem] md:text-[6rem] font-serif leading-none break-words">
           {owner.full_name}
         </h1>
         {owner.bio && (
-          <p className="text-xl leading-relaxed italic max-w-3xl">
+          <p className="text-base sm:text-xl leading-relaxed italic max-w-3xl">
             “{owner.bio}”
           </p>
         )}
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-6">
-            <div className="flex items-center gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          <div className="space-y-5 sm:space-y-6">
+            <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base break-words">
               <Mail className="w-5 h-5" />
-              <a href={`mailto:${owner.email}`} className="underline underline-offset-2 hover:text-[#3E4939]/80">{owner.email}</a>
+              <a href={`mailto:${owner.email}`} className="underline underline-offset-2 hover:text-[#3E4939]/80 break-all">{owner.email}</a>
             </div>
             {owner.phone && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
                 <Phone className="w-5 h-5" />
                 <span>{owner.phone}</span>
               </div>
             )}
             {addr && (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 text-sm sm:text-base break-words">
                 <MapPin className="w-5 h-5" />
                 <span>{addr}</span>
               </div>
@@ -76,15 +76,23 @@ export default function GymOwnerDetailPage() {
                 href={owner.address?.mapLink || `https://maps.google.com?q=${encodeURIComponent(addr)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 underline underline-offset-2 hover:text-[#3E4939]/80"
+                className="inline-flex items-center gap-1 sm:gap-2 underline underline-offset-2 hover:text-[#3E4939]/80 text-sm sm:text-base"
               >
                 Open in Maps <ExternalLink className="w-4 h-4" />
               </a>
             )}
           </div>
-          <div className="rounded-xl overflow-hidden border bg-white shadow-lg h-72">
+          <div className="rounded-xl overflow-hidden border bg-white shadow-lg h-56 sm:h-72 w-full">
             {mapSrc ? (
-              <iframe src={mapSrc} width="100%" height="100%" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" />
+              <iframe
+                src={mapSrc}
+                width="100%"
+                height="100%"
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-400">
                 Map unavailable
@@ -94,7 +102,7 @@ export default function GymOwnerDetailPage() {
         </div>
       </div>
       {loadingClasses ? (
-        <div className="max-w-5xl mx-auto px-10 py-16 text-center text-gray-400">
+        <div className="max-w-5xl mx-auto px-3 sm:px-10 py-16 text-center text-gray-400">
           Loading classes…
         </div>
       ) : (

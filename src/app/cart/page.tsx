@@ -101,32 +101,50 @@ export default function CartPage() {
   }
 
   return (
-    <main className="max-w-xl mx-auto py-12 space-y-6">
-      <h1 className="text-3xl font-semibold">Your cart</h1>
+  <main className="max-w-2xl mx-auto mt-36 py-12 px-6 bg-white rounded-2xl shadow-lg space-y-8 border border-[#ecece7]">
+  <h1 className="text-4xl font-extrabold text-[#2e372c] mb-8">Your Classes</h1>
+
+  {lines.length === 0 ? (
+    <div className="text-center text-lg text-gray-400 py-12">Your cart is empty.</div>
+  ) : (
+    <div className="space-y-6">
       {lines.map((l: CartLine) => (
-        <div key={l.id} className="flex justify-between items-center py-2 border-b">
-          <span>
-            {l.course.title} × {l.qty ?? 1}
-          </span>
-          <div className="flex items-center gap-4">
-            <span>${(l.course.price * (l.qty ?? 1)).toFixed(2)}</span>
-            <button onClick={() => handleRemove(l.course.id)}>
-              <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-600" />
+        <div key={l.id} className="flex justify-between items-center px-4 py-4 rounded-lg bg-[#F7F6F3] hover:bg-[#ecece7] transition border border-[#f1f1ee]">
+          <div>
+            <span className="block text-xl font-semibold text-[#2e372c]">{l.course.title}</span>
+            {/* <span className="block text-sm text-gray-500">× {l.qty ?? 1}</span> */}
+          </div>
+          <div className="flex items-center gap-6">
+            <span className="text-xl font-bold text-[#335B4B]">${(l.course.price * (l.qty ?? 1)).toFixed(2)}</span>
+            <button
+              onClick={() => handleRemove(l.course.id)}
+              className="rounded-full bg-white border border-gray-300 hover:bg-red-50 transition p-2"
+              title="Remove"
+            >
+              <Trash2 className="w-5 h-5 text-gray-400 hover:text-red-600 transition" />
             </button>
           </div>
         </div>
       ))}
-      <div className="flex justify-between font-bold pt-4">
-        <span>Total</span>
-        <span>${subtotal.toFixed(2)}</span>
-      </div>
-      <button
-        disabled={checkingOut}
-        onClick={handleCheckout}
-        className="w-full py-3 bg-teal-900 text-white rounded disabled:opacity-50"
-      >
-        {checkingOut ? 'Processing…' : 'Checkout'}
-      </button>
-    </main>
+    </div>
+  )}
+
+  <div className="flex justify-between items-center text-2xl font-bold border-t border-[#ecece7] pt-8 px-4">
+    <span className="text-[#2e372c]">Total</span>
+    <span className="text-[#335B4B]">${subtotal.toFixed(2)}</span>
+  </div>
+
+  <button
+    disabled={checkingOut || lines.length === 0}
+    onClick={handleCheckout}
+    className={`w-full py-4 mt-2 text-xl rounded-lg transition font-semibold ${
+      lines.length === 0 || checkingOut
+        ? 'bg-[#203529] text-gray-400 cursor-not-allowed'
+        : 'bg-[#203529] text-white hover:bg-[#335B4B] shadow-lg'
+    }`}
+  >
+    {checkingOut ? 'Processing…' : 'Checkout'}
+  </button>
+</main> 
   )
 }

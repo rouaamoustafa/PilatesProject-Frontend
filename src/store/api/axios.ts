@@ -50,9 +50,9 @@ import axios from 'axios'
 
 // point at the Next.js rewrite proxy
 const api = axios.create({
-  baseURL: '/api',
-  withCredentials: false, // or true if you switch to cookie-auth
-})
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: false,
+});
 
 api.interceptors.request.use(cfg => {
   const token = typeof window !== 'undefined'

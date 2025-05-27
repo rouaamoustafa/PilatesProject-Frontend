@@ -88,57 +88,58 @@ export default function Home() {
          <div className="mt-16 border-t border-[#2e372c] w-[70%] mx-auto"></div>
 
             {/* Our Approach */}
-<section className="mt-20 container mx-auto max-w-10xl px-6">
+<section className="mt-20 container mx-auto max-w-7xl px-2 sm:px-6">
   {/* Title */}
-  <h2 className="text-6xl font-serif text-[#2e372c] text-start mb-16">
+  <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif text-[#2e372c] text-start mb-10 sm:mb-16">
     Our Approach
   </h2>
 
   {/* Top Layout: Left + Text + Right */}
-  <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-6 items-start">
+  <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-4 sm:gap-6 items-start">
     {/* Left Image */}
-    <div className="overflow-hidden rounded-md shadow-md">
+    <div className="overflow-hidden rounded-md shadow-md mb-4 md:mb-0">
       <img
         src="/images/left-pilates.jpg"
         alt="Left"
-        className="w-full h-[220px] object-cover transition-transform duration-600 hover:scale-105"
+        className="w-full h-44 sm:h-[220px] object-cover transition-transform duration-500 hover:scale-105"
       />
     </div>
 
     {/* Center Text */}
-    <div className="flex items-center justify-center text-center">
-      <p className="text-[#2e372c] font-serif text-2xl leading-relaxed max-w-md">
+    <div className="flex items-center justify-center text-center px-1 sm:px-8 mb-4 md:mb-0">
+      <p className="text-[#2e372c] font-serif text-lg sm:text-2xl leading-relaxed max-w-md mx-auto">
         We blend expert instruction with personalized care to help you achieve your goals. Our focus is on mindful movement, proper alignment, and creating a welcoming space for everyone.
       </p>
     </div>
 
     {/* Right Image */}
-    <div className="row-span-2 overflow-hidden rounded-md shadow-md">
+    <div className="overflow-hidden rounded-md shadow-md mb-4 md:mb-0 md:row-span-2">
       <img
         src="/images/right-pilates.jpg"
         alt="Right"
-        className="w-full h-full object-cover transition-transform duration-600 hover:scale-105"
+        className="w-full h-44 sm:h-full object-cover transition-transform duration-500 hover:scale-105"
       />
     </div>
 
     {/* Bottom Row: Image + Text Side-by-Side */}
-    <div className="col-span-3 grid md:grid-cols-2 gap-13 mt-40 items-center">
+    <div className="col-span-1 md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-13 mt-10 sm:mt-24 items-center">
       {/* Bottom Image */}
-      <div className="overflow-hidden rounded-md shadow-md">
+      <div className="overflow-hidden rounded-md shadow-md mb-4 md:mb-0">
         <img
           src="/images/center-pilates.jpg"
           alt="Bottom"
-          className="w-full h-[300px] object-cover transition-transform duration-600 hover:scale-105"
+          className="w-full h-52 sm:h-[300px] object-cover transition-transform duration-500 hover:scale-105"
         />
       </div>
 
       {/* Bottom Text */}
-      <p className="text-[#2e372c] font-serif text-2xl leading-relaxed">
+      <p className="text-[#2e372c] font-serif text-lg sm:text-2xl leading-relaxed px-1 sm:px-8 text-center md:text-left">
         Every movement begins with intention. At PilatesHub, we empower every client with techniques that foster strength, awareness, and resilience. This is more than fitness — it's functional well-being for your life.
       </p>
     </div>
   </div>
 </section>
+
 
 
 
