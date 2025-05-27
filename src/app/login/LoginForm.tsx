@@ -38,7 +38,7 @@ const next = nextUrl ?? params.get('next') ?? '/'
 
      try {
     // 1. Login and store token
-    const { data } = await axios.post<{ token: string }>('/api/auth/login', {
+    const { data } = await api.post<{ token: string }>('/auth/login', {
       email: form.email,
       password: form.password,
     });
