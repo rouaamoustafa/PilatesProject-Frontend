@@ -34,7 +34,7 @@ export default function RegisterForm() {
 
     try {
       // 1. Register → get token
-      const { data } = await api.post<{ token: string }>('/auth/register', form)
+      const { data } = await axios.post<{ token: string }>('https://pilatesproject-backend-3zu5.onrender.com/api/auth/register', form)
       dispatch(setToken(data.token))
 
       // 2. Fetch profile

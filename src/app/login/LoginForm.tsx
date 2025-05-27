@@ -37,7 +37,7 @@ const next = nextUrl ?? params.get('next') ?? '/'
 
     try {
       // 1. Login and store token
-      const { data } = await api.post<{ token: string }>('/auth/login', {
+      const { data } = await axios.post<{ token: string }>('https://pilatesproject-backend-3zu5.onrender.com/api/auth/login', {
         email:    form.email,
         password: form.password,
       })
